@@ -1,0 +1,13 @@
+numpy
+pandas
+opencv-python
+scikit-learn
+matplotlib
+seaborn
+flask
+mysql-connector-python
+joblib
+librosa
+soundfile
+datasets
+huggingface_hub

@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reports | Synthetic Content Detection Using Machine Learning</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        /* ================================
+           REPORT PAGE
+        ================================= */
+
+        .report-intro {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .report-intro-text h1 {
+            margin-bottom: 8px;
+        }
+
+        .report-intro-text p {
+            max-width: 700px;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+
+        /* ================================
+           REPORT IDENTIFICATION
+        ================================= */
+
+        .report-meta {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .meta-card {
+            padding: 20px;
+        }
+
+        .meta-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .meta-value {
+            color: var(--text-primary);
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .meta-description {
+            margin-top: 6px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+
+        /* ================================
+           REPORT GRID
+        ================================= */
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .report-card {
+            padding: 24px;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 24px;
+        }
+
+        .report-title {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .report-subtitle {
+            margin-top: 6px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+
+        /* ================================
+           CLASSIFICATION
+        ================================= */
+
+        .classification-container {
+            display: grid;
+            grid-template-columns: 170px 1fr;
+            gap: 28px;
+            align-items: center;
+        }
+
+        .classification-ring {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+
+            background:
+                conic-gradient(
+                    var(--success)
+                    0%
+                    {{ real_percentage|default(0) }}%,
+
+                    var(--danger)
+                    {{ real_percentage|default(0) }}%
+                    100%
+                );
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .classification-ring-inner {
+            width: 112px;
+            height: 112px;
+            border-radius: 50%;
+            background: var(--surface);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ring-value {
+            font-size: 25px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .ring-label {
+            margin-top: 4px;
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .classification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .classification-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .classification-name {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .classification-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+        }
+
+        .dot-real {
+            background: var(--success);
+        }
+
+        .dot-fake {
+            background: var(--danger);
+        }
+
+        .classification-number {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+
+        /* ================================
+           MEDIA ANALYSIS
+        ================================= */
+
+        .media-analysis {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .media-row {
+            display: grid;
+            grid-template-columns: 90px 1fr 70px;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .media-label {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .media-track {
+            height: 10px;
+            background: var(--surface-muted);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .media-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: var(--accent);
+        }
+
+        .media-value {
+            text-align: right;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+
+        /* ================================
+           PROBABILITY ANALYSIS
+        ================================= */
+
+        .probability-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .probability-row {
+            display: grid;
+            grid-template-columns: 130px 1fr 70px;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .probability-label {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .probability-track {
+            height: 9px;
+            background: var(--surface-muted);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .probability-fill {
+            height: 100%;
+            border-radius: inherit;
+        }
+
+        .probability-real {
+            background: var(--success);
+        }
+
+        .probability-fake {
+            background: var(--danger);
+        }
+
+        .probability-value {
+            text-align: right;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+
+        /* ================================
+           REPORT INFORMATION
+        ================================= */
+
+        .information-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .information-item {
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface-muted);
+        }
+
+        .information-label {
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 6px;
+        }
+
+        .information-value {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+
+        /* ================================
+           TABLE
+        ================================= */
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .report-table {
+            width: 100%;
+            min-width: 850px;
+            border-collapse: collapse;
+        }
+
+        .report-table th {
+            text-align: left;
+            padding: 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            white-space: nowrap;
+        }
+
+        .report-table td {
+            padding: 15px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .report-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .report-table tr:hover {
+            background: var(--surface-muted);
+        }
+
+        .filename {
+            color: var(--text-primary) !important;
+            font-weight: 600;
+        }
+
+        .status-real {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .status-fake {
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+
+        /* ================================
+           DETECTION NOTE
+        ================================= */
+
+        .detection-note {
+            display: flex;
+            gap: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface-muted);
+        }
+
+        .detection-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-weight: 800;
+        }
+
+        .detection-content h3 {
+            margin-bottom: 6px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .detection-content p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.65;
+        }
+
+
+        /* ================================
+           EMPTY STATE
+        ================================= */
+
+        .empty-state {
+            text-align: center;
+            padding: 45px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-title {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .empty-text {
+            font-size: 13px;
+        }
+
+
+        /* ================================
+           RESPONSIVE
+        ================================= */
+
+        @media (max-width: 1100px) {
+
+            .report-meta {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .report-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 750px) {
+
+            .report-intro {
+                flex-direction: column;
+            }
+
+            .report-actions {
+                width: 100%;
+            }
+
+            .report-actions .button {
+                flex: 1;
+                text-align: center;
+            }
+
+            .classification-container {
+                grid-template-columns: 1fr;
+                justify-items: center;
+            }
+
+            .classification-list {
+                width: 100%;
+            }
+
+            .information-list {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 550px) {
+
+            .report-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .media-row {
+                grid-template-columns: 70px 1fr 50px;
+            }
+
+            .probability-row {
+                grid-template-columns: 90px 1fr 55px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- =========================================
+         SIDEBAR
+    ========================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-mark">
+                SC
+            </div>
+
+            <div>
+                <div class="brand-title">
+                    SYNTHETIC CONTENT
+                </div>
+
+                <div class="brand-subtitle">
+                    Detection Using Machine Learning
+                </div>
+            </div>
+
+        </div>
+
+
+        <nav class="navigation">
+
+            <div class="nav-section">
+
+                <div class="nav-section-title">
+                    WORKSPACE
+                </div>
+
+
+                <a href="/" class="nav-item">
+
+                    <span class="nav-icon">
+                        ⌁
+                    </span>
+
+                    <span>
+                        Analyze
+                    </span>
+
+                </a>
+
+
+                <a href="/dashboard" class="nav-item">
+
+                    <span class="nav-icon">
+                        ▦
+                    </span>
+
+                    <span>
+                        Dashboard
+                    </span>
+
+                </a>
+
+
+                <a href="/history" class="nav-item">
+
+                    <span class="nav-icon">
+                        ◷
+                    </span>
+
+                    <span>
+                        Detection History
+                    </span>
+
+                </a>
+
+
+                <a href="/reports" class="nav-item active">
+
+                    <span class="nav-icon">
+                        ▤
+                    </span>
+
+                    <span>
+                        Reports
+                    </span>
+
+                </a>
+
+
+                <a href="/analytics" class="nav-item">
+
+                    <span class="nav-icon">
+                        ◫
+                    </span>
+
+                    <span>
+                        Analytics
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <div class="nav-section">
+
+                <div class="nav-section-title">
+                    SYSTEM
+                </div>
+
+
+                <a href="/models" class="nav-item">
+
+                    <span class="nav-icon">
+                        ◇
+                    </span>
+
+                    <span>
+                        Models
+                    </span>
+
+                </a>
+
+
+                <a href="/settings" class="nav-item">
+
+                    <span class="nav-icon">
+                        ⚙
+                    </span>
+
+                    <span>
+                        Settings
+                    </span>
+
+                </a>
+
+            </div>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <div>
+
+                    <div class="system-status-title">
+                        SYSTEM ONLINE
+                    </div>
+
+                    <div class="system-status-text">
+                        Local inference active
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================================
+         MAIN
+    ========================================== -->
+
+    <main class="main">
+
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div>
+
+                <div class="topbar-label">
+                    DETECTION REPORTING
+                </div>
+
+                <div class="topbar-title">
+                    Detection Reports
+                </div>
+
+            </div>
+
+
+            <div class="topbar-actions">
+
+                <a href="/" class="button button-secondary">
+                    New Analysis
+                </a>
+
+                <a href="/history" class="button button-primary">
+                    Detection History
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+
+        <section class="content">
+
+
+            <!-- PAGE INTRO -->
+
+            <div class="report-intro">
+
+                <div class="report-intro-text">
+
+                    <div class="page-heading">
+
+                        <div>
+
+                            <h1>
+                                Detection Report Center
+                            </h1>
+
+                            <p>
+                                Detailed classification, probability,
+                                media-type and detection-history reporting.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="report-actions">
+
+                    <a href="/dashboard"
+                       class="button button-secondary">
+
+                        Dashboard
+
+                    </a>
+
+                    <a href="/analytics"
+                       class="button button-primary">
+
+                        Analytics
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================
+                 REPORT METADATA
+            ====================================== -->
+
+            <div class="report-meta">
+
+
+                <div class="card meta-card">
+
+                    <div class="meta-label">
+                        Report Type
+                    </div>
+
+                    <div class="meta-value">
+                        Detection Report
+                    </div>
+
+                    <div class="meta-description">
+                        Synthetic content analysis
+                    </div>
+
+                </div>
+
+
+                <div class="card meta-card">
+
+                    <div class="meta-label">
+                        Classification
+                    </div>
+
+                    <div class="meta-value">
+                        Binary
+                    </div>
+
+                    <div class="meta-description">
+                        REAL / FAKE
+                    </div>
+
+                </div>
+
+
+                <div class="card meta-card">
+
+                    <div class="meta-label">
+                        Detection Engine
+                    </div>
+
+                    <div class="meta-value">
+                        Random Forest
+                    </div>
+
+                    <div class="meta-description">
+                        17 handcrafted features
+                    </div>
+
+                </div>
+
+
+                <div class="card meta-card">
+
+                    <div class="meta-label">
+                        Face Analysis
+                    </div>
+
+                    <div class="meta-value">
+                        YuNet
+                    </div>
+
+                    <div class="meta-description">
+                        OpenCV face detector
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================
+                 MAIN REPORT GRID
+            ====================================== -->
+
+            <div class="report-grid">
+
+
+                <!-- CLASSIFICATION REPORT -->
+
+                <div class="card report-card">
+
+                    <div class="report-header">
+
+                        <div>
+
+                            <h2 class="report-title">
+                                Classification Distribution
+                            </h2>
+
+                            <p class="report-subtitle">
+                                Recorded detection outcomes.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="classification-container">
+
+
+                        <div class="classification-ring">
+
+                            <div class="classification-ring-inner">
+
+                                <div class="ring-value">
+                                    {{ real_percentage|default(0) }}%
+                                </div>
+
+                                <div class="ring-label">
+                                    REAL
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="classification-list">
+
+
+                            <div class="classification-row">
+
+                                <div class="classification-name">
+
+                                    <span class="classification-dot dot-real"></span>
+
+                                    REAL Media
+
+                                </div>
+
+                                <div class="classification-number">
+                                    {{ real_count|default(0) }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="classification-row">
+
+                                <div class="classification-name">
+
+                                    <span class="classification-dot dot-fake"></span>
+
+                                    FAKE Media
+
+                                </div>
+
+                                <div class="classification-number">
+                                    {{ fake_count|default(0) }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="classification-row">
+
+                                <div class="classification-name">
+
+                                    <span class="classification-dot"></span>
+
+                                    Total
+
+                                </div>
+
+                                <div class="classification-number">
+                                    {{ total_detections|default(0) }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MEDIA REPORT -->
+
+                <div class="card report-card">
+
+                    <div class="report-header">
+
+                        <div>
+
+                            <h2 class="report-title">
+                                Media-Type Distribution
+                            </h2>
+
+                            <p class="report-subtitle">
+                                Input formats processed by the system.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="media-analysis">
+
+
+                        <div class="media-row">
+
+                            <div class="media-label">
+                                Images
+                            </div>
+
+                            <div class="media-track">
+
+                                <div
+                                    class="media-fill"
+                                    style="
+                                        width:
+                                        {% if total_detections|default(0) > 0 %}
+                                            {{ (image_count / total_detections * 100)|round(1) }}%
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    ">
+                                </div>
+
+                            </div>
+
+                            <div class="media-value">
+                                {{ image_count|default(0) }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="media-row">
+
+                            <div class="media-label">
+                                Videos
+                            </div>
+
+                            <div class="media-track">
+
+                                <div
+                                    class="media-fill"
+                                    style="
+                                        width:
+                                        {% if total_detections|default(0) > 0 %}
+                                            {{ (video_count / total_detections * 100)|round(1) }}%
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    ">
+                                </div>
+
+                            </div>
+
+                            <div class="media-value">
+                                {{ video_count|default(0) }}
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+                <!-- PROBABILITY REPORT -->
+
+                <div class="card report-card">
+
+                    <div class="report-header">
+
+                        <div>
+
+                            <h2 class="report-title">
+                                Classification Probability
+                            </h2>
+
+                            <p class="report-subtitle">
+                                Result distribution across recorded detections.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="probability-list">
+
+
+                        <div class="probability-row">
+
+                            <div class="probability-label">
+                                REAL Results
+                            </div>
+
+                            <div class="probability-track">
+
+                                <div
+                                    class="probability-fill probability-real"
+                                    style="width: {{ real_percentage|default(0) }}%;">
+                                </div>
+
+                            </div>
+
+                            <div class="probability-value">
+                                {{ real_percentage|default(0) }}%
+                            </div>
+
+                        </div>
+
+
+                        <div class="probability-row">
+
+                            <div class="probability-label">
+                                FAKE Results
+                            </div>
+
+                            <div class="probability-track">
+
+                                <div
+                                    class="probability-fill probability-fake"
+                                    style="width: {{ fake_percentage|default(0) }}%;">
+                                </div>
+
+                            </div>
+
+                            <div class="probability-value">
+                                {{ fake_percentage|default(0) }}%
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+                <!-- SYSTEM INFORMATION -->
+
+                <div class="card report-card">
+
+                    <div class="report-header">
+
+                        <div>
+
+                            <h2 class="report-title">
+                                Analysis Configuration
+                            </h2>
+
+                            <p class="report-subtitle">
+                                Current detection pipeline configuration.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="information-list">
+
+
+                        <div class="information-item">
+
+                            <div class="information-label">
+                                Algorithm
+                            </div>
+
+                            <div class="information-value">
+                                Random Forest Classifier
+                            </div>
+
+                        </div>
+
+
+                        <div class="information-item">
+
+                            <div class="information-label">
+                                Feature Count
+                            </div>
+
+                            <div class="information-value">
+                                17 Features
+                            </div>
+
+                        </div>
+
+
+                        <div class="information-item">
+
+                            <div class="information-label">
+                                Face Detector
+                            </div>
+
+                            <div class="information-value">
+                                OpenCV YuNet
+                            </div>
+
+                        </div>
+
+
+                        <div class="information-item">
+
+                            <div class="information-label">
+                                Output Classes
+                            </div>
+
+                            <div class="information-value">
+                                REAL / FAKE
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================
+                 DETAILED RECORDS
+            ====================================== -->
+
+            <div class="card report-card">
+
+                <div class="report-header">
+
+                    <div>
+
+                        <h2 class="report-title">
+                            Detailed Detection Records
+                        </h2>
+
+                        <p class="report-subtitle">
+                            Latest detection records stored in the detection database.
+                        </p>
+
+                    </div>
+
+
+                    <a href="/history"
+                       class="button button-secondary">
+
+                        View Full History
+
+                    </a>
+
+                </div>
+
+
+                {% if recent_records %}
+
+                <div class="table-wrapper">
+
+                    <table class="report-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    ID
+                                </th>
+
+                                <th>
+                                    Filename
+                                </th>
+
+                                <th>
+                                    Media
+                                </th>
+
+                                <th>
+                                    Result
+                                </th>
+
+                                <th>
+                                    Confidence
+                                </th>
+
+                                <th>
+                                    REAL Probability
+                                </th>
+
+                                <th>
+                                    FAKE Probability
+                                </th>
+
+                                <th>
+                                    Analyzed
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        {% for record in recent_records %}
+
+                            <tr>
+
+                                <td>
+                                    #{{ record[0] }}
+                                </td>
+
+
+                                <td class="filename">
+                                    {{ record[1] }}
+                                </td>
+
+
+                                <td>
+                                    {{ record[2] }}
+                                </td>
+
+
+                                <td>
+
+                                    {% if record[3]|upper == "REAL" %}
+
+                                        <span class="status-real">
+                                            REAL
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status-fake">
+                                            FAKE
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+                                    {{ "%.2f"|format(record[4]|float) }}%
+                                </td>
+
+
+                                <td>
+                                    {{ "%.2f"|format(record[5]|float) }}%
+                                </td>
+
+
+                                <td>
+                                    {{ "%.2f"|format(record[6]|float) }}%
+                                </td>
+
+
+                                <td>
+                                    {{ record[7] }}
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                {% else %}
+
+                <div class="empty-state">
+
+                    <div class="empty-title">
+                        No Detection Records
+                    </div>
+
+                    <div class="empty-text">
+                        Analyze an image or video to generate detection records.
+                    </div>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- =====================================
+                 DETECTION NOTE
+            ====================================== -->
+
+            <div class="card report-card">
+
+                <div class="detection-note">
+
+                    <div class="detection-icon">
+                        i
+                    </div>
+
+
+                    <div class="detection-content">
+
+                        <h3>
+                            Detection Evaluation Note
+                        </h3>
+
+                        <p>
+                            The current detection system uses a Random Forest
+                            classifier trained with 17 handcrafted image features
+                            together with OpenCV YuNet face detection. The model's
+                            reported evaluation is based on the project's
+                            group-aware test split. These evaluation results
+                            describe performance on the evaluated dataset and
+                            should not be interpreted as guaranteed real-world
+                            detection accuracy.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

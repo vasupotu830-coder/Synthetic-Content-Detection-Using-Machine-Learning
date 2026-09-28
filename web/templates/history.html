@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Detection History</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: white;
+        }
+
+        .header p {
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+
+        .back-button {
+            text-decoration: none;
+            background: #2563eb;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            background: #1d4ed8;
+        }
+
+        .table-container {
+            background: #1e293b;
+            border-radius: 12px;
+            overflow-x: auto;
+            border: 1px solid #334155;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th {
+            background: #334155;
+            color: white;
+            padding: 16px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 15px 16px;
+            border-top: 1px solid #334155;
+            color: #cbd5e1;
+        }
+
+        tr:hover {
+            background: #263449;
+        }
+
+        .real {
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .fake {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+            color: #94a3b8;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 20px 10px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div>
+            <h1>Detection History</h1>
+            <p>Previous image and video deepfake detection results</p>
+        </div>
+
+        <a href="/" class="back-button">
+            ← Back to Detector
+        </a>
+    </div>
+
+    <div class="table-container">
+
+        {% if records %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Filename</th>
+                    <th>Media Type</th>
+                    <th>Prediction</th>
+                    <th>Confidence</th>
+                    <th>REAL %</th>
+                    <th>FAKE %</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for record in records %}
+
+            <tr>
+                <td>{{ record[0] }}</td>
+
+                <td>{{ record[1] }}</td>
+
+                <td>{{ record[2] }}</td>
+
+                <td>
+                    {% if record[3] == "REAL" %}
+                        <span class="real">REAL</span>
+                    {% else %}
+                        <span class="fake">FAKE</span>
+                    {% endif %}
+                </td>
+
+                <td>{{ "%.2f"|format(record[4]) }}%</td>
+
+                <td>{{ "%.2f"|format(record[5]) }}%</td>
+
+                <td>{{ "%.2f"|format(record[6]) }}%</td>
+
+                <td>{{ record[7] }}</td>
+            </tr>
+
+            {% endfor %}
+
+            </tbody>
+        </table>
+
+        {% else %}
+
+        <div class="empty">
+            <h2>No detection history yet</h2>
+            <p>Analyze an image or video to create your first record.</p>
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>
