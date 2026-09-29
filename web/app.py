@@ -201,9 +201,12 @@ def get_db_connection():
 
     connection = mysql.connector.connect(
         host=DB_CONFIG["host"],
+        port=int(os.getenv("MYSQL_PORT", "3306")),
         user=DB_CONFIG["user"],
         password=DB_CONFIG["password"],
-        database=DB_CONFIG["database"]
+        database=DB_CONFIG["database"],
+        ssl_disabled=False,
+        connection_timeout=10
     )
 
     return connection
